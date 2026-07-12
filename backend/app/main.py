@@ -4,7 +4,7 @@ Application entry point.
 from fastapi import FastAPI
 from app.core.config import get_settings
 from app.api.health import router as health_router
-from app.api.llm_test import router as llm_test_router
+from app.api.planner import router as planner_router
 
 settings = get_settings()
 
@@ -15,7 +15,7 @@ app = FastAPI(
 )
 
 app.include_router(health_router)
-app.include_router(llm_test_router)
+app.include_router(planner_router)
 
 @app.get("/", tags=["System"])
 async def root() -> dict:
