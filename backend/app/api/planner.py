@@ -1,6 +1,5 @@
 """
-Endpoint to trigger the agent workflow (currently just the Planner).
-Replaces the temporary /llm/test endpoint from Phase 2.
+Endpoint to trigger the agent workflow: Planner -> Generator.
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -17,7 +16,14 @@ class PlanRequest(BaseModel):
 async def create_plan(request: PlanRequest) -> dict:
     try:
         graph = get_compiled_graph()
-        result = await graph.ainvoke({"user_request": request.user_request, "plan": ""})
-        return {"plan": result["plan"]}
+        result = await graph.ainvoke({
+            "user_request": request.user_request,
+            "plan": "",
+            "generated_files": [],
+        })
+        return {
+            "plan": result["plan"],
+            "generated_files": result["generated_files"],
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
