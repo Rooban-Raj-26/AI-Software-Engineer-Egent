@@ -1,9 +1,8 @@
 """
 Builds and compiles the LangGraph agent workflow.
-Currently: planner -> generator -> reviewer -> (conditional) -> END.
-If the Reviewer finds critical issues, the graph currently just ends
-anyway (needs_fixes is reported but not yet acted on) — the actual
-auto-fix loop back to a Debugger node is wired up in Phase 6.
+Flow: planner -> generator -> reviewer -> (conditional):
+  - if needs_fixes AND retry_count < MAX_RETRIES -> debugger -> reviewer (loop)
+  - else -> END
 """
 from functools import lru_cache
 from langgraph.graph import StateGraph, END
@@ -11,15 +10,13 @@ from app.agents.state import AgentState
 from app.agents.planner_agent import planner_node
 from app.agents.generator_agent import generator_node
 from app.agents.reviewer_agent import reviewer_node
+from app.agents.debugger_agent import debugger_node
+
+MAX_RETRIES = 3
 
 
 def _route_after_review(state: AgentState) -> str:
-    """
-    Decides what happens after review. For now, both paths lead to END —
-    this function exists now so Phase 6 only needs to change the mapping,
-    not restructure the graph.
-    """
-    if state.get("needs_fixes"):
+    if state.get("needs_fixes") and state.get("retry_count", 0) < MAX_RETRIES:
         return "needs_fixes"
     return "done"
 
@@ -31,6 +28,7 @@ def get_compiled_graph():
     graph.add_node("planner", planner_node)
     graph.add_node("generator", generator_node)
     graph.add_node("reviewer", reviewer_node)
+    graph.add_node("debugger", debugger_node)
 
     graph.set_entry_point("planner")
     graph.add_edge("planner", "generator")
@@ -40,9 +38,11 @@ def get_compiled_graph():
         "reviewer",
         _route_after_review,
         {
-            "needs_fixes": END,  # Phase 6 will change this to point to "debugger"
+            "needs_fixes": "debugger",
             "done": END,
         },
     )
+
+    graph.add_edge("debugger", "reviewer")  # loop back to re-check
 
     return graph.compile()
