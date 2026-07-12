@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str = ""
     github_models_token: str = ""
+    gemini_model_name: str = "gemini-2.5-flash-lite"
 
     model_config = SettingsConfigDict(
         env_file=".env",

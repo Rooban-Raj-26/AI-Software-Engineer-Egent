@@ -1,6 +1,6 @@
 """
-Endpoint to trigger the agent workflow:
-Planner -> Generator -> Reviewer -> (Debugger loop) -> done.
+Endpoint to trigger the full agent workflow:
+Planner -> Generator -> Reviewer -> (Debugger loop) -> Documentation -> Git.
 """
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -24,6 +24,8 @@ async def create_plan(request: PlanRequest) -> dict:
             "review_report": [],
             "needs_fixes": False,
             "retry_count": 0,
+            "readme_content": "",
+            "commit_message": "",
         })
         return {
             "plan": result["plan"],
@@ -31,6 +33,8 @@ async def create_plan(request: PlanRequest) -> dict:
             "review_report": result["review_report"],
             "needs_fixes": result["needs_fixes"],
             "retry_count": result["retry_count"],
+            "readme_content": result["readme_content"],
+            "commit_message": result["commit_message"],
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

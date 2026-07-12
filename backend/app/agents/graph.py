@@ -1,8 +1,7 @@
 """
 Builds and compiles the LangGraph agent workflow.
-Flow: planner -> generator -> reviewer -> (conditional):
-  - if needs_fixes AND retry_count < MAX_RETRIES -> debugger -> reviewer (loop)
-  - else -> END
+Flow: planner -> generator -> reviewer -> (loop w/ debugger until done)
+      -> documentation -> git -> END.
 """
 from functools import lru_cache
 from langgraph.graph import StateGraph, END
@@ -11,6 +10,8 @@ from app.agents.planner_agent import planner_node
 from app.agents.generator_agent import generator_node
 from app.agents.reviewer_agent import reviewer_node
 from app.agents.debugger_agent import debugger_node
+from app.agents.documentation_agent import documentation_node
+from app.agents.git_agent import git_node
 
 MAX_RETRIES = 3
 
@@ -29,6 +30,8 @@ def get_compiled_graph():
     graph.add_node("generator", generator_node)
     graph.add_node("reviewer", reviewer_node)
     graph.add_node("debugger", debugger_node)
+    graph.add_node("documentation", documentation_node)
+    graph.add_node("git", git_node)
 
     graph.set_entry_point("planner")
     graph.add_edge("planner", "generator")
@@ -39,10 +42,12 @@ def get_compiled_graph():
         _route_after_review,
         {
             "needs_fixes": "debugger",
-            "done": END,
+            "done": "documentation",
         },
     )
 
-    graph.add_edge("debugger", "reviewer")  # loop back to re-check
+    graph.add_edge("debugger", "reviewer")
+    graph.add_edge("documentation", "git")
+    graph.add_edge("git", END)
 
     return graph.compile()

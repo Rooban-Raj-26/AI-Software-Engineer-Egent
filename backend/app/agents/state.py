@@ -11,4 +11,6 @@ class AgentState(TypedDict):
     generated_files: List[str]
     review_report: List[Dict[str, Any]]
     needs_fixes: bool
-    retry_count: int   # tracks how many debugger passes have run, caps the loop
+    retry_count: int
+    readme_content: str      # output of the Documentation Agent
+    commit_message: str      # output of the Git Agent
