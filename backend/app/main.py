@@ -12,6 +12,7 @@ from app.tools.file_tool import FileToolError
 from app.tools.terminal_tool import TerminalToolError
 from app.api.health import router as health_router
 from app.api.planner import router as planner_router
+from app.api.download import router as download_router
 
 configure_logging()
 logger = logging.getLogger(__name__)
@@ -57,6 +58,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 app.include_router(health_router)
 app.include_router(planner_router)
+app.include_router(download_router)
 
 
 @app.get("/", tags=["System"])

@@ -61,7 +61,7 @@ export default function App() {
         </div>
       )}
 
-      {result && !loading && <ResultsView result={result} />}
+      {result && !loading && <ResultsView result={result} apiBaseUrl={API_BASE_URL} />}
     </div>
   );
 }

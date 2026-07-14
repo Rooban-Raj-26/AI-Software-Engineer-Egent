@@ -13,9 +13,18 @@ function severityColor(severity) {
   return "text-gray-400";
 }
 
-export default function ResultsView({ result }) {
+export default function ResultsView({ result, apiBaseUrl }) {
   return (
     <div className="w-full max-w-4xl mx-auto mt-8 space-y-6">
+      <div className="flex justify-end">
+        <a
+          href={`${apiBaseUrl}/agents/download`}
+          className="inline-block bg-green-600 hover:bg-green-500 text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors"
+        >
+          ⬇ Download Generated Project (ZIP)
+        </a>
+      </div>
+
       <Section title="Development Plan">
         <pre className="whitespace-pre-wrap text-sm text-gray-300">{result.plan}</pre>
       </Section>
