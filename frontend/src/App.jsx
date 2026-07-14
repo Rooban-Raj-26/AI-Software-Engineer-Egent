@@ -3,7 +3,7 @@ import RequestForm from "./components/RequestForm";
 import LoadingState from "./components/LoadingState";
 import ResultsView from "./components/ResultsView";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "https://ai-software-engineer-agent-qtb0.onrender.com";
 
 export default function App() {
   const [userRequest, setUserRequest] = useState("");
