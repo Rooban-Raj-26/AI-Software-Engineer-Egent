@@ -1,0 +1,10 @@
+venv/
+ai/
+__pycache__/
+*.pyc
+.env
+generated_projects/
+tests/
+.pytest_cache/
+*.db
+*.sqlite3
